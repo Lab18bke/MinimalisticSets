@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Successful</title>
+  <meta name="description" content="Payment confirmation">
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <div class="success-container">
+    <div class="checkmark">
+      <svg viewBox="0 0 24 24">
+        <polyline points="4 12 10 18 20 6"></polyline>
+      </svg>
+    </div>
+    <h1 class="success-title">Thank You</h1>
+    <p class="success-sub">Your payment was successful.</p>
+    <p class="session-id" id="sessionId"></p>
+    <a href="/" class="back-link">Return</a>
+  </div>
+
+  <script>
+    const linkId = localStorage.getItem('pending_payment');
+    if (linkId) {
+      document.getElementById('sessionId').textContent = linkId;
+      localStorage.removeItem('pending_payment');
+
+      fetch('/api/notify-success', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ linkId })
+      });
+    }
+
+    fetch('/api/config')
+      .then(r => r.json())
+      .then(d => {
+        document.title = `${d.storeName} — Confirmed`;
+      });
+  </script>
+</body>
+
+</html>

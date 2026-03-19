@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pay</title>
+  <meta name="description" content="Secure payment page">
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="store-name" id="storeName"></h1>
+    <div class="pay-section">
+      <div class="input-wrapper">
+        <input type="number" class="amount-input" id="amountInput" placeholder="0.00" min="0.50" step="0.01"
+          inputmode="decimal">
+        <span class="currency-symbol">£</span>
+      </div>
+      <button class="pay-btn" id="payBtn" disabled>Pay</button>
+      <p class="error-msg" id="errorMsg"></p>
+    </div>
+  </div>
+
+  <script>
+    const amountInput = document.getElementById('amountInput');
+    const payBtn = document.getElementById('payBtn');
+    const errorMsg = document.getElementById('errorMsg');
+
+    fetch('/api/config')
+      .then(r => r.json())
+      .then(d => {
+        document.getElementById('storeName').textContent = d.storeName;
+        document.title = d.storeName;
+      });
+
+    amountInput.addEventListener('input', () => {
+      const val = parseFloat(amountInput.value);
+      payBtn.disabled = !val || val < 0.50;
+      errorMsg.textContent = '';
+    });
+
+    payBtn.addEventListener('click', async () => {
+      const dollars = parseFloat(amountInput.value);
+      if (!dollars || dollars < 0.50) {
+        errorMsg.textContent = 'Minimum amount is £0.50';
+        return;
+      }
+
+      payBtn.disabled = true;
+      payBtn.textContent = '...';
+      errorMsg.textContent = '';
+
+      try {
+        const res = await fetch('/api/create-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: Math.round(dollars * 100) })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.url) {
+          throw new Error(data.error || 'Failed to create checkout');
+        }
+
+        localStorage.setItem('pending_payment', data.sessionId);
+        window.location.href = data.url;
+      } catch (err) {
+        errorMsg.textContent = err.message;
+        payBtn.disabled = false;
+        payBtn.textContent = 'Pay';
+      }
+    });
+  </script>
+</body>
+
+</html>
