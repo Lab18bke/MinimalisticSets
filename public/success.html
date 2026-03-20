@@ -23,15 +23,15 @@
   </div>
 
   <script>
-    const linkId = localStorage.getItem('pending_payment');
-    if (linkId) {
-      document.getElementById('sessionId').textContent = linkId;
+    const sessionId = localStorage.getItem('pending_payment');
+    if (sessionId) {
+      document.getElementById('sessionId').textContent = sessionId;
       localStorage.removeItem('pending_payment');
 
       fetch('/api/notify-success', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ linkId })
+        body: JSON.stringify({ sessionId })
       });
     }
 

@@ -23,6 +23,7 @@
     </div>
   </div>
 
+  <script src="https://mcsets.com/js/checkout.js"></script>
   <script>
     const amountInput = document.getElementById('amountInput');
     const payBtn = document.getElementById('payBtn');
@@ -42,8 +43,8 @@
     });
 
     payBtn.addEventListener('click', async () => {
-      const dollars = parseFloat(amountInput.value);
-      if (!dollars || dollars < 0.50) {
+      const pounds = parseFloat(amountInput.value);
+      if (!pounds || pounds < 0.50) {
         errorMsg.textContent = 'Minimum amount is £0.50';
         return;
       }
@@ -56,17 +57,31 @@
         const res = await fetch('/api/create-checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: Math.round(dollars * 100) })
+          body: JSON.stringify({ amount: Math.round(pounds) })
         });
 
         const data = await res.json();
 
-        if (!res.ok || !data.url) {
+        if (!res.ok || !data.sessionId) {
           throw new Error(data.error || 'Failed to create checkout');
         }
 
-        localStorage.setItem('pending_payment', data.sessionId);
-        window.location.href = data.url;
+        MCSets.checkout.open({
+          sessionId: data.sessionId,
+          onSuccess: (result) => {
+            localStorage.setItem('pending_payment', result.session_id || data.sessionId);
+            window.location.href = '/success.html';
+          },
+          onCancel: () => {
+            payBtn.disabled = false;
+            payBtn.textContent = 'Pay';
+          },
+          onError: (err) => {
+            errorMsg.textContent = 'Payment failed. Please try again.';
+            payBtn.disabled = false;
+            payBtn.textContent = 'Pay';
+          }
+        });
       } catch (err) {
         errorMsg.textContent = err.message;
         payBtn.disabled = false;
