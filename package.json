@@ -9,7 +9,6 @@
   "dependencies": {
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "mcsets-js-sdk-client": "^1.0.3",
-    "selfsigned": "^5.5.0"
+    "mcsets-js-sdk-client": "^1.0.3"
   }
 }

@@ -40,8 +40,8 @@ app.post('/api/create-checkout', async (req, res) => {
         const { amount } = req.body;
         const pence = Math.round(parseFloat(amount) * 100);
 
-        if (!amount || isNaN(pence) || pence < 100) {
-            return res.status(400).json({ error: 'Minimum amount is £1.00' });
+        if (!amount || isNaN(pence) || pence < 200) {
+            return res.status(400).json({ error: 'Minimum amount is £2.00' });
         }
 
         const sessionData = await mcsets('checkout/sessions', 'POST', {

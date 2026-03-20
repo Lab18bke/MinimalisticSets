@@ -14,7 +14,7 @@
     <h1 class="store-name" id="storeName"></h1>
     <div class="pay-section">
       <div class="input-wrapper">
-        <input type="number" class="amount-input" id="amountInput" placeholder="0.00" min="0.50" step="0.01"
+        <input type="number" class="amount-input" id="amountInput" placeholder="0.00" min="2.00" step="0.01"
           inputmode="decimal">
         <span class="currency-symbol">£</span>
       </div>
@@ -38,14 +38,14 @@
 
     amountInput.addEventListener('input', () => {
       const val = parseFloat(amountInput.value);
-      payBtn.disabled = !val || val < 0.50;
+      payBtn.disabled = !val || val < 2;
       errorMsg.textContent = '';
     });
 
     payBtn.addEventListener('click', async () => {
       const pounds = parseFloat(amountInput.value);
-      if (!pounds || pounds < 0.50) {
-        errorMsg.textContent = 'Minimum amount is £0.50';
+      if (!pounds || pounds < 2) {
+        errorMsg.textContent = 'Minimum amount is £2.00';
         return;
       }
 
